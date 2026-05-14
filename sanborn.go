@@ -8,13 +8,13 @@ import (
 )
 
 type LockedImageMap struct {
-	Map  map[string]*canvas.Image
+	Map  map[string]SanbornMap
 	Lock sync.RWMutex
 }
 
 func NewLockedImageMap() *LockedImageMap {
 	return &LockedImageMap{
-		Map:  make(map[string]*canvas.Image),
+		Map:  make(map[string]SanbornMap),
 		Lock: sync.RWMutex{},
 	}
 }
@@ -38,7 +38,10 @@ func LoadMapWorker(name, town string) {
 	image := canvas.NewImageFromFile(imagePath)
 	image.FillMode = canvas.ImageFillContain
 	imageMap.Lock.Lock()
-	imageMap.Map[name] = image
+	imageMap.Map[name] = SanbornMap{
+		Name:       name,
+		mediumSize: image,
+	}
 	imageMap.Lock.Unlock()
 	wg.Done()
 }

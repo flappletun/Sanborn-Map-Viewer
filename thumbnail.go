@@ -53,7 +53,7 @@ func LoadThumbnails(townName string) ([]fyne.CanvasObject, []string) {
 				println("Thumbnail clicked:", name)
 
 				// load medium image corresponding to the thumbnail
-				thumbnailFrame.Content = imageMap.Map[name]
+				thumbnailFrame.Content = imageMap.Map[name].mediumSize
 				thumbnailFrame.Refresh()
 			}))
 			names = append(names, name)
