@@ -26,33 +26,35 @@ var townList = []string{
 	"Yoakum",
 }
 
+// global variables
+var thumbnailFrame *container.Scroll
 var imageMap = NewLockedImageMap()
 var wg sync.WaitGroup
 
 func main() {
 	var thumbnails []fyne.CanvasObject
 	var names []string
-	var thumbnailGrid *container.Scroll
+	var fullGrid *fyne.Container
 
-	// initial thumbnail grid with gopher image as placeholder
+	// initialize thumbnail grid with gopher image as placeholder
 	gopher := canvas.NewImageFromFile(gopherPath)
 	gopher.FillMode = canvas.ImageFillContain
 	gopher.SetMinSize(fyne.NewSize(800, 800))
-	thumbnailGrid = container.NewScroll(gopher)
-	thumbnailGrid.SetMinSize(fyne.NewSize(630, 630))
+	thumbnailFrame = container.NewScroll(gopher)
+	thumbnailFrame.SetMinSize(fyne.NewSize(630, 630))
 
 	// drop down menu to select town
 	townSelector := widget.NewSelect(townList, func(s string) {
 		// load thumbnails for selected town
 		thumbnails, names = LoadThumbnails(s)
-		grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(200, 200)), thumbnails...)
-		thumbnailGrid.Content = grid
-		thumbnailGrid.Refresh()
+		fullGrid = container.New(layout.NewGridWrapLayout(fyne.NewSize(200, 200)), thumbnails...)
+		thumbnailFrame.Content = fullGrid
+		thumbnailFrame.Refresh()
 
-		// load small images for each thumbnail
+		// load medium image for each thumbnail
 		wg.Add(len(names))
 		for _, name := range names {
-			go LoadMapWorker(name)
+			go LoadMapWorker(name, s)
 		}
 		wg.Wait()
 	})
@@ -62,7 +64,7 @@ func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Sanborn Map Explorer")
 	myWindow.Resize(fyne.NewSize(1000, 600))
-	myWindow.SetContent(container.NewHBox(townSelector, thumbnailGrid))
+	myWindow.SetContent(container.NewHBox(townSelector, thumbnailFrame))
 	myWindow.Show()
 	myApp.Run()
 	tidyUp()

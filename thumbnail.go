@@ -48,13 +48,15 @@ func LoadThumbnails(townName string) ([]fyne.CanvasObject, []string) {
 			fmt.Println("Error accessing path:", err)
 		}
 		if filepath.Ext(path) == ".jpg" || filepath.Ext(path) == ".png" {
+			name := filepath.Base(path)
 			thumbnails = append(thumbnails, NewThumbnail(path, func() {
-				println("Thumbnail clicked:", filepath.Base(path))
+				println("Thumbnail clicked:", name)
 
 				// load medium image corresponding to the thumbnail
-				//todo: use image map
+				thumbnailFrame.Content = imageMap.Map[name]
+				thumbnailFrame.Refresh()
 			}))
-			names = append(names, filepath.Base(path))
+			names = append(names, name)
 		}
 		return nil
 	})

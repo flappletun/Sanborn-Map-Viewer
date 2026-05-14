@@ -31,10 +31,12 @@ func NewSanbornMap(name string) *SanbornMap {
 	}
 }
 
-func LoadMapWorker(name string) {
+func LoadMapWorker(name, town string) {
 	// load medium images corrsesponing to the thumbnails
-	imagePath := filepath.Join(baseMediumPath, name)
+	imagePath := filepath.Join(baseMediumPath, town, name)
+	println("Loading image:", imagePath)
 	image := canvas.NewImageFromFile(imagePath)
+	image.FillMode = canvas.ImageFillContain
 	imageMap.Lock.Lock()
 	imageMap.Map[name] = image
 	imageMap.Lock.Unlock()
