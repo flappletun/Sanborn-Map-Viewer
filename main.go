@@ -32,6 +32,7 @@ var backButton *widget.Button
 var detailButton *widget.Button
 var fullViewButton *widget.Button
 var sanbornHolder SanbornMap
+var selectedTown string
 var imageMap = NewLockedImageMap()
 var wg sync.WaitGroup
 
@@ -50,6 +51,7 @@ func main() {
 	// drop down menu to select town
 	townSelector := widget.NewSelect(townList, func(s string) {
 		// load thumbnails for selected town
+		selectedTown = s
 		thumbnails, names = LoadThumbnails(s)
 		fullGrid = container.New(layout.NewGridWrapLayout(fyne.NewSize(200, 200)), thumbnails...)
 		thumbnailFrame.Content = fullGrid
@@ -80,7 +82,10 @@ func main() {
 
 	// detail button to show large image
 	detailButton = widget.NewButton("Detailed View", func() {
-		thumbnailFrame.Content = gopher //todo
+		detailPath := filepath.Join(baseLargePath, selectedTown, sanbornHolder.Name)
+		sanbornHolder.largeSize = canvas.NewImageFromFile(detailPath)
+		sanbornHolder.largeSize.FillMode = canvas.ImageFillOriginal
+		thumbnailFrame.Content = sanbornHolder.largeSize
 		thumbnailFrame.Refresh()
 		detailButton.Hide()
 		backButton.Hide()
@@ -90,13 +95,14 @@ func main() {
 
 	// full view button to retun to full view
 	fullViewButton = widget.NewButton("Full View", func() {
+		sanbornHolder.largeSize = nil                     // free up memory used by large image
 		thumbnailFrame.Content = sanbornHolder.mediumSize //todo load
 		thumbnailFrame.Refresh()
 		detailButton.Show()
 		backButton.Show()
 		fullViewButton.Hide()
 	})
-	fullViewButton.Hide()
+	fullViewButton.Hide() // hide full view button until detail view is clicked
 
 	// control bar
 	controlBar := container.NewVBox(townSelector, backButton, detailButton, fullViewButton)
