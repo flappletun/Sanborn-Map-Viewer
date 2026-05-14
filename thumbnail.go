@@ -50,11 +50,16 @@ func LoadThumbnails(townName string) ([]fyne.CanvasObject, []string) {
 		if filepath.Ext(path) == ".jpg" || filepath.Ext(path) == ".png" {
 			name := filepath.Base(path)
 			thumbnails = append(thumbnails, NewThumbnail(path, func() {
-				println("Thumbnail clicked:", name)
-
 				// load medium image corresponding to the thumbnail
-				thumbnailFrame.Content = imageMap.Map[name].mediumSize
+				sanbornHolder = imageMap.Map[name]
+				thumbnailFrame.Content = sanbornHolder.mediumSize
 				thumbnailFrame.Refresh()
+
+				// reveal back button to return to thumbnail grid
+				backButton.Show()
+
+				// reveal detail button to show large image
+				detailButton.Show()
 			}))
 			names = append(names, name)
 		}

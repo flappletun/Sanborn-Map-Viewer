@@ -28,6 +28,10 @@ var townList = []string{
 
 // global variables
 var thumbnailFrame *container.Scroll
+var backButton *widget.Button
+var detailButton *widget.Button
+var fullViewButton *widget.Button
+var sanbornHolder SanbornMap
 var imageMap = NewLockedImageMap()
 var wg sync.WaitGroup
 
@@ -57,14 +61,51 @@ func main() {
 			go LoadMapWorker(name, s)
 		}
 		wg.Wait()
+
+		backButton.Hide()
+		detailButton.Hide()
+		fullViewButton.Hide()
 	})
 	townSelector.PlaceHolder = "Select a town"
+
+	// back button to return to thumbnail view
+	backButton = widget.NewButton("Back", func() {
+		thumbnailFrame.Content = fullGrid
+		thumbnailFrame.Refresh()
+		backButton.Hide()
+		detailButton.Hide()
+		fullViewButton.Hide()
+	})
+	backButton.Hide() // hide back button until a thumbnail is clicked
+
+	// detail button to show large image
+	detailButton = widget.NewButton("Detailed View", func() {
+		thumbnailFrame.Content = gopher //todo
+		thumbnailFrame.Refresh()
+		detailButton.Hide()
+		backButton.Hide()
+		fullViewButton.Show()
+	})
+	detailButton.Hide() // hide detail button until a thumbnail is clicked
+
+	// full view button to retun to full view
+	fullViewButton = widget.NewButton("Full View", func() {
+		thumbnailFrame.Content = sanbornHolder.mediumSize //todo load
+		thumbnailFrame.Refresh()
+		detailButton.Show()
+		backButton.Show()
+		fullViewButton.Hide()
+	})
+	fullViewButton.Hide()
+
+	// control bar
+	controlBar := container.NewVBox(townSelector, backButton, detailButton, fullViewButton)
 
 	// run app
 	myApp := app.New()
 	myWindow := myApp.NewWindow("Sanborn Map Explorer")
 	myWindow.Resize(fyne.NewSize(1000, 600))
-	myWindow.SetContent(container.NewHBox(townSelector, thumbnailFrame))
+	myWindow.SetContent(container.NewHBox(controlBar, thumbnailFrame))
 	myWindow.Show()
 	myApp.Run()
 	tidyUp()
